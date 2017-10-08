@@ -12,11 +12,15 @@ boolean placePickersMode;
 
 String pixelDataFileName = "rockyData.csv";
 
+ArrayList<RiverWave> waves;
+
 void setup() {
   size(500, 500);
   frameRate(25);
   //colorMode(HSB, 255);
   background(0);
+  strokeCap(SQUARE);
+
 
   println(Serial.list());
   try {
@@ -32,6 +36,13 @@ void setup() {
 
   clearScreen = true;
   placePickersMode = false;
+
+  waves = new ArrayList<RiverWave>();
+  for (int i=0; i < 20; i++) {
+    RiverWave newWave = new RiverWave();
+    println("-|| Wave Alpha: " + newWave.opacity);
+    waves.add(newWave);
+  }
 }
 
 void draw() {
@@ -40,11 +51,16 @@ void draw() {
     //clearScreen = false;
   }
 
+  for (RiverWave wave : waves) {
+    wave.update();
+    wave.render();
+  }
+
+
+
+  // ---------------- PICKERS
 
   if (placePickersMode) {
-    
-    
-    
   } else {
     //if (frameCount % 1 == 0) {
     pixelPicker.pick();
@@ -52,13 +68,26 @@ void draw() {
     //}
   }
 
-  pixelPicker.drawPickers();
+  // TEST WITH ELLIPSES
+  fill(0);
+  noStroke();
+  rect(0, 0, width, height);
+  for (Picker picker : pixelPicker.getAllPickers ()) {
+    noFill();
+    fill(picker.getColor());
+    ellipse(picker.getX() * width, picker.getY() * height, 50, 50);
+  }
+
+  //pixelPicker.drawPickers();
+  
+  text("FR: " + frameRate, 10,10);
+  
 }
 
-void mousePressed(){
- if(placePickersMode){
-   pixelPicker.addPicker(mouseX,mouseY);
- } 
+void mousePressed() {
+  if (placePickersMode) {
+    pixelPicker.addPicker(mouseX, mouseY);
+  }
 }
 
 
@@ -79,8 +108,12 @@ void keyPressed() {
   if (key == 'p') {
     placePickersMode = !placePickersMode;
   }
-  
+
   if (key == 's') {
     pixelPicker.savePickersToFile(pixelDataFileName);
+  }
+
+  if (key == 'r') {
+    pixelPicker.removeAll();
   }
 }

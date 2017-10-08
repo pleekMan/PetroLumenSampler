@@ -41,9 +41,9 @@ class PixelPicker {
     } else {
       pickers.clear();
       for (int i=0; i < eachPickerData.length; i++) {
-        println(eachPickerData[i]);
+        //println(eachPickerData[i]);
         String[] dataSplit = split(eachPickerData[i], ','); // 0=id, 1=x, 2=y
-        if (!dataSplit[0].equals("")) {
+        if (!dataSplit[0].equals("")) { // IF WE ARE IN AN EMPTY LINE (CREATED BY savePickers WAY OF SAVING)
           Picker newPicker = new Picker(float(dataSplit[1]), float(dataSplit[2]));
           pickers.add(newPicker);
         }
@@ -75,6 +75,10 @@ class PixelPicker {
   color getColorAt(float x, float y) {
     int pixelSlot = int((x * surfaceWidth) + (surfaceWidth * (y * surfaceHeight)));
     return pixels[pixelSlot];
+  }
+  
+  Picker getPicker(int pickerNum){
+    return pickers.get(pickerNum);  
   }
 
   public void addPicker(float _x, float _y) {
@@ -109,6 +113,14 @@ class PixelPicker {
       stroke(255);
       ellipse(pickers.get(i).getX() * surfaceWidth, pickers.get(i).getY() * surfaceHeight, 10, 10);
     }
+  }
+  
+  void removeAll(){
+    pickers.clear();
+  }
+  
+  ArrayList<Picker> getAllPickers(){
+    return pickers;
   }
 
   void resetSender() {
