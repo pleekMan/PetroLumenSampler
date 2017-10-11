@@ -1,5 +1,6 @@
 class Picker {
 
+  // VALUES ARE NORMALIZED
   float x, y;
   color c;
 
@@ -8,7 +9,7 @@ class Picker {
     x = _x;
     y = _y;
 
-      c = color(0);
+    c = color(0);
   }
 
 
@@ -23,12 +24,14 @@ class Picker {
   void setColor(color _c) {
     c = _c;
   }
-  
+
   float getX() {
+    // VALUES ARE NORMALIZED
     return x;
   }
 
   float getY() {
+    // VALUES ARE NORMALIZED
     return y;
   }
 

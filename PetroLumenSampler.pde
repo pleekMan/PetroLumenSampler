@@ -6,6 +6,7 @@ import processing.serial.*;
 
 Serial serialPort;
 PixelPicker pixelPicker;
+PerlinWaves perlinWaves;
 
 boolean clearScreen;
 boolean placePickersMode;
@@ -16,7 +17,7 @@ ArrayList<RiverWave> waves;
 
 void setup() {
   size(500, 500);
-  frameRate(25);
+  frameRate(30);
   //colorMode(HSB, 255);
   background(0);
   strokeCap(SQUARE);
@@ -34,15 +35,19 @@ void setup() {
   pixelPicker = new PixelPicker(width, height);
   pixelPicker.setupPickersFromFile(pixelDataFileName);
 
+  perlinWaves = new PerlinWaves();
+
   clearScreen = true;
   placePickersMode = false;
 
+  /*
   waves = new ArrayList<RiverWave>();
-  for (int i=0; i < 20; i++) {
-    RiverWave newWave = new RiverWave();
-    println("-|| Wave Alpha: " + newWave.opacity);
-    waves.add(newWave);
-  }
+   for (int i=0; i < 50; i++) {
+   RiverWave newWave = new RiverWave();
+   //println("-|| Wave Alpha: " + newWave.opacity);
+   waves.add(newWave);
+   }
+   */
 }
 
 void draw() {
@@ -51,20 +56,22 @@ void draw() {
     //clearScreen = false;
   }
 
+  /*
   for (RiverWave wave : waves) {
-    wave.update();
-    wave.render();
-  }
+   wave.update();
+   wave.render();
+   }
+   */
 
 
 
-  // ---------------- PICKERS
+  // ---------------- PixelPICKERS
 
   if (placePickersMode) {
   } else {
     //if (frameCount % 1 == 0) {
-    pixelPicker.pick();
-    pixelPicker.sendOut();
+    //pixelPicker.pick();
+    //pixelPicker.sendOut();
     //}
   }
 
@@ -77,11 +84,15 @@ void draw() {
     fill(picker.getColor());
     ellipse(picker.getX() * width, picker.getY() * height, 50, 50);
   }
+  
+  // GENERATE WAVES WITH PERLIN NOISE
+  perlinWaves.mapToPickers(pixelPicker.getAllPickers());
+
 
   //pixelPicker.drawPickers();
-  
-  text("FR: " + frameRate, 10,10);
-  
+
+  fill(255);
+  text("FR: " + frameRate, 10, 10);
 }
 
 void mousePressed() {

@@ -37,7 +37,7 @@ class PixelPicker {
     String[] eachPickerData = loadStrings(_fileName);
 
     if (eachPickerData == null) {
-      println("-|| NO DATA COULD BE LOADED FROM FILE. DEFAULTING TO 1 PICKER");
+      println("-|| NO DATA COULD BE LOADED FROM FILE. DEFAULTING TO 1 PICKER at 0,0");
     } else {
       pickers.clear();
       for (int i=0; i < eachPickerData.length; i++) {
