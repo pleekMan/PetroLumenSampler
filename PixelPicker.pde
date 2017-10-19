@@ -1,23 +1,23 @@
 class PixelPicker {
 
   ArrayList<Picker> pickers;
-  float surfaceWidth, surfaceHeight;
+  //float surfaceWidth, surfaceHeight;
+  PGraphics drawSurface;
 
-  PixelPicker(int _pickerCount, float _surfaceWidth, float _surfaceHeight) {
+  PixelPicker(int _pickerCount, int _surfaceWidth, int _surfaceHeight) {
 
     pickers = new ArrayList<Picker>();
-    surfaceWidth = _surfaceWidth;
-    surfaceHeight = _surfaceHeight;
+    drawSurface = createGraphics(_surfaceWidth, _surfaceHeight, P2D);
 
     setupPickers(_pickerCount);
     resetSender();
   }
 
-  PixelPicker(float _surfaceWidth, float _surfaceHeight) {
+  PixelPicker(int _surfaceWidth, int _surfaceHeight) {
 
     pickers = new ArrayList<Picker>();
-    surfaceWidth = _surfaceWidth;
-    surfaceHeight = _surfaceHeight;
+    drawSurface = createGraphics(_surfaceWidth, _surfaceHeight, P2D);
+
 
     setupPickers(1);
     resetSender();
@@ -63,7 +63,7 @@ class PixelPicker {
   }
 
   public void pick() {
-    loadPixels();
+    drawSurface.loadPixels();
     for (int i=0; i< pickers.size (); i++) {
       Picker p = pickers.get(i);
       p.setColor(getColorAt(p.getX(), p.getY()));
@@ -73,16 +73,17 @@ class PixelPicker {
   }
 
   color getColorAt(float x, float y) {
-    int pixelSlot = int((x * surfaceWidth) + (surfaceWidth * (y * surfaceHeight)));
-    return pixels[pixelSlot];
+    //println("DS.width -> " + drawSurface.width);
+    int pixelSlot = int((x * drawSurface.width) + (drawSurface.width * (y * drawSurface.height)));
+    return drawSurface.pixels[pixelSlot];
   }
-  
-  Picker getPicker(int pickerNum){
-    return pickers.get(pickerNum);  
+
+  Picker getPicker(int pickerNum) {
+    return pickers.get(pickerNum);
   }
 
   public void addPicker(float _x, float _y) {
-    pickers.add(new Picker(_x / surfaceWidth, _y / surfaceHeight));
+    pickers.add(new Picker(_x / drawSurface.width, _y / drawSurface.height));
   }
 
   public void sendOut() {
@@ -108,18 +109,28 @@ class PixelPicker {
     for (int i=0; i< pickers.size (); i++) {
       fill(255);
       noStroke();
-      text(i, (pickers.get(i).getX() * surfaceWidth) + 10, (pickers.get(i).getY() * surfaceHeight));
-      noFill();
-      stroke(255);
-      ellipse(pickers.get(i).getX() * surfaceWidth, pickers.get(i).getY() * surfaceHeight, 10, 10);
+      text(i, (pickers.get(i).getX() * drawSurface.width) + 10, (pickers.get(i).getY() * drawSurface.height));
+      
+      fill(pickers.get(i).getColor());
+      //stroke(255);
+      noStroke();
+      ellipse(pickers.get(i).getX() * drawSurface.width, pickers.get(i).getY() * drawSurface.height, 10, 10);
     }
   }
   
-  void removeAll(){
-    pickers.clear();
+  void renderDrawSurface(){
+    image(drawSurface,0,0);
   }
   
-  ArrayList<Picker> getAllPickers(){
+  PGraphics getDrawSurface(){
+   return drawSurface; 
+  }
+
+  void removeAll() {
+    pickers.clear();
+  }
+
+  ArrayList<Picker> getAllPickers() {
     return pickers;
   }
 

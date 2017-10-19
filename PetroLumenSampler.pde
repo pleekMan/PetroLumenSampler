@@ -2,6 +2,8 @@
 // BYTE ORDERING CONSTANTLY SENT THROUGHT THE PIXEL PICKER.
 // TO RE-ORDER IT, PixelPicker.reset() CLEARS THE SERIAL BUFFER AND WAITS 5 SECONDS (APP COMPLETELY PAUSES, WITH NO SENDING)
 
+// ALL Picker's coordinates are normalized. Remember to map them when using them. 
+
 import processing.serial.*;
 
 Serial serialPort;
@@ -13,10 +15,12 @@ boolean placePickersMode;
 
 String pixelDataFileName = "rockyData.csv";
 
-ArrayList<RiverWave> waves;
+//ArrayList<RiverWave> waves;
+
+Barrier barrier;
 
 void setup() {
-  size(500, 500);
+  size(500, 500, P2D);
   frameRate(30);
   //colorMode(HSB, 255);
   background(0);
@@ -48,6 +52,9 @@ void setup() {
    waves.add(newWave);
    }
    */
+
+  barrier = new Barrier(0, 0);
+  barrier.bindToDrawSurface(pixelPicker.getDrawSurface());
 }
 
 void draw() {
@@ -63,33 +70,41 @@ void draw() {
    }
    */
 
-
+  // GENERATE WAVES WITH PERLIN NOISE
+  perlinWaves.mapToPickers(pixelPicker.getAllPickers(), pixelPicker.getDrawSurface().width, pixelPicker.getDrawSurface().height);
 
   // ---------------- PixelPICKERS
 
+
+  //if (frameCount % 1 == 0) {
+
+  // DRAW ON PIXEL PICKER SURFACE
+  PGraphics drawSurface = pixelPicker.getDrawSurface();
+  drawSurface.beginDraw();
+  drawSurface.background(0);
+  drawSurface.noStroke();
+  for (int i=0; i < pixelPicker.getAllPickers ().size(); i++) {
+    float x = pixelPicker.getPicker(i).x * pixelPicker.getDrawSurface().width;
+    float y = pixelPicker.getPicker(i).y * pixelPicker.getDrawSurface().height;
+
+    drawSurface.fill(pixelPicker.getPicker(i).getColor());
+    drawSurface.ellipse(x, y, 20, 20);
+  }
+  drawSurface.endDraw();
+
+  barrier.render();
+
+  pixelPicker.pick();
+  //pixelPicker.sendOut();
+
   if (placePickersMode) {
+    pixelPicker.drawPickers();
   } else {
-    //if (frameCount % 1 == 0) {
-    //pixelPicker.pick();
-    //pixelPicker.sendOut();
-    //}
+    pixelPicker.renderDrawSurface();
   }
 
-  // TEST WITH ELLIPSES
-  fill(0);
-  noStroke();
-  rect(0, 0, width, height);
-  for (Picker picker : pixelPicker.getAllPickers ()) {
-    noFill();
-    fill(picker.getColor());
-    ellipse(picker.getX() * width, picker.getY() * height, 50, 50);
-  }
-  
-  // GENERATE WAVES WITH PERLIN NOISE
-  perlinWaves.mapToPickers(pixelPicker.getAllPickers());
 
 
-  //pixelPicker.drawPickers();
 
   fill(255);
   text("FR: " + frameRate, 10, 10);
@@ -97,10 +112,13 @@ void draw() {
 
 void mousePressed() {
   if (placePickersMode) {
-    pixelPicker.addPicker(mouseX, mouseY);
+    //pixelPicker.addPicker(mouseX, mouseY);
   }
 }
 
+void mouseDragged() {
+  barrier.setPosition(mouseX, mouseY);
+}
 
 
 void keyPressed() {
