@@ -13,7 +13,7 @@ PerlinWaves perlinWaves;
 boolean clearScreen;
 boolean placePickersMode;
 
-String pixelDataFileName = "rockyData.csv";
+String pixelDataFileName = "rockyData_4_LEDS.csv";
 
 //ArrayList<RiverWave> waves;
 
@@ -29,7 +29,7 @@ void setup() {
 
   println(Serial.list());
   try {
-    String portName = Serial.list()[11];
+    String portName = Serial.list()[9];
     serialPort = new Serial(this, portName, 115200);
   } 
   catch (Exception e) {
@@ -95,16 +95,13 @@ void draw() {
   barrier.render();
 
   pixelPicker.pick();
-  //pixelPicker.sendOut();
+  pixelPicker.sendOut();
 
   if (placePickersMode) {
     pixelPicker.drawPickers();
   } else {
     pixelPicker.renderDrawSurface();
   }
-
-
-
 
   fill(255);
   text("FR: " + frameRate, 10, 10);
@@ -146,3 +143,95 @@ void keyPressed() {
     pixelPicker.removeAll();
   }
 }
+
+// ========= ARDUINO CODE  ================== 
+
+/*
+#include <PololuLedStrip.h>
+
+// Create an ledStrip object and specify the pin it will use.
+PololuLedStrip<12> ledStrip;
+
+// Create a buffer for holding the colors (3 bytes per color).
+#define LED_COUNT 4
+rgb_color colors[LED_COUNT];
+
+char rgbIn[3];
+
+void setup()
+{
+  // Start up the serial port, for communication with the PC.
+  Serial.begin(115200);
+  Serial.println(" Ready to receive colors!!");
+  //Serial.setTimeout(0);
+
+  testLights();
+}
+
+void loop()
+{
+
+  if (Serial.available()) {
+
+    for (int i = 0; i < LED_COUNT; i++) {
+      Serial.readBytes(rgbIn, 3);
+
+
+      colors[i].red = map(rgbIn[0], 0, 100, 0, 255);
+      colors[i].green = map(rgbIn[1], 0, 100, 0, 255);
+      colors[i].blue = map(rgbIn[2], 0, 100, 0, 255);
+
+      
+//      Serial.print(rgbIn[0]);
+//      Serial.print(" - ");
+//      Serial.print(rgbIn[1]);
+//      Serial.print(" - ");
+//      Serial.println(rgbIn[2]);
+//      Serial.println("=============");
+      
+
+    }
+
+  }
+
+  ledStrip.write(colors, LED_COUNT);
+
+
+  delay(10);
+}
+
+void testLights() {
+
+  clearLights();
+
+  for (int i = 0; i < LED_COUNT; i++) {
+
+    colors[i].red = 255;
+    colors[i].green = 255;
+    colors[i].blue = 255;
+
+    ledStrip.write(colors, LED_COUNT);
+
+    delay(50);
+
+  }
+
+  delay(2000);
+
+  clearLights();
+
+
+}
+
+void clearLights() {
+  for (int i = 0; i < LED_COUNT; i++) {
+
+    colors[i].red = 0;
+    colors[i].green = 0;
+    colors[i].blue = 0;
+
+    ledStrip.write(colors, LED_COUNT);
+  }
+}
+
+*/

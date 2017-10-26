@@ -1,8 +1,11 @@
 class PixelPicker {
 
   ArrayList<Picker> pickers;
-  //float surfaceWidth, surfaceHeight;
   PGraphics drawSurface;
+  //float surfaceWidth, surfaceHeight;
+
+  int waitFramesToStart = 60; 
+
 
   PixelPicker(int _pickerCount, int _surfaceWidth, int _surfaceHeight) {
 
@@ -24,7 +27,7 @@ class PixelPicker {
   } 
 
   public void setupPickers(int pickerCount) {
-    println("-|| SETTING UP PICKERS");
+    println("-|| SETTING UP PICKERS -> WILL START SENDING AFTER " + waitFramesToStart + " FRAMES");
 
     for (int i=0; i< pickerCount; i++) {
       Picker newPicker = new Picker(0, 0);
@@ -90,18 +93,28 @@ class PixelPicker {
 
     if (serialPort != null) {
 
-      for (int i = 0; i < pickers.size (); i++) {
-        color c = pickers.get(i).getColor();
-        int r = (c >> 16) & 0xFF;
-        int g = (c >> 8) & 0xFF;
-        int b = c & 0xFF;
-        byte[] toSend = {
-          (byte)r, (byte)g, (byte)b
-        };
-        serialPort.write(toSend);
+      if (frameCount > waitFramesToStart) {
+        // IF SENDING STARTS STRAIGHT AWAY, THE LEDS (or data sent?) ARE SOMEHOW SHIFTED FORWARD +1
+
+        for (int i = 0; i < pickers.size (); i++) {
+          color c = pickers.get(i).getColor();
+          int r = (c >> 16) & 0xFF;
+          int g = (c >> 8) & 0xFF;
+          int b = c & 0xFF;
+          byte[] toSend = {
+            mapToByteAsPercent(r),  mapToByteAsPercent(g),  mapToByteAsPercent(b)
+          };
+          serialPort.write(toSend);
+        }
+        serialPort.clear();
       }
-      serialPort.clear();
     }
+  }
+  
+  public byte mapToByteAsPercent(int value) {
+    // BECAUSE JAVA BYTE IS SIGNED (-128 -> 127), ARDUINO WILL GET CONFUSED IF SENT A NEGATIVE BYTE
+    // LET' DO A SYSTEM WHERE I SEND A PERCENTAGE (0 -> 100), AND THEN MAP IT BACK INSIDE ARDUINO TO 0 -> 255
+    return (byte) ((value / (float)255) * 100);
   }
 
   void drawPickers() {
@@ -110,20 +123,20 @@ class PixelPicker {
       fill(255);
       noStroke();
       text(i, (pickers.get(i).getX() * drawSurface.width) + 10, (pickers.get(i).getY() * drawSurface.height));
-      
+
       fill(pickers.get(i).getColor());
       //stroke(255);
       noStroke();
       ellipse(pickers.get(i).getX() * drawSurface.width, pickers.get(i).getY() * drawSurface.height, 10, 10);
     }
   }
-  
-  void renderDrawSurface(){
-    image(drawSurface,0,0);
+
+  void renderDrawSurface() {
+    image(drawSurface, 0, 0);
   }
-  
-  PGraphics getDrawSurface(){
-   return drawSurface; 
+
+  PGraphics getDrawSurface() {
+    return drawSurface;
   }
 
   void removeAll() {
@@ -137,12 +150,12 @@ class PixelPicker {
   void resetSender() {
 
     if (serialPort != null) {
-      println(" || RESETING PICKERS...");
+      println("-|| RESETING PICKERS...");
 
       serialPort.clear();
-      delay(2000);
+      delay(1000);
 
-      println(" || PICKER RESET DONE. GO..!!");
+      println("-|| PICKER RESET DONE. GO..!!");
     }
   }
 
