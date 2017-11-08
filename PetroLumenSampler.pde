@@ -1,4 +1,4 @@
-// ALL Picker's coordinates are normalized. Remember to map them when using them. 
+// ALL Picker's coordinates are normalized. Remember to map them when using them.  //<>//
 
 import processing.serial.*;
 
@@ -47,15 +47,15 @@ void setup() {
   barriers = new ArrayList<Barrier>();
   for (int i=0; i< CVManager.maxPeopleCount; i++) {
     // INITIALIZE ALL POSSIBLE BARRIERS, THEN DRAW THEM IF NECESSARY
-    Barrier newBarrier = new Barrier(0,0);
+    Barrier newBarrier = new Barrier();
     newBarrier.bindToDrawSurface(pixelPicker.getDrawSurface());
     barriers.add(newBarrier);
   }
-  
+
   clearScreen = true;
   placePickersMode = false;
   enableConstantSendOut = false;
-  
+
   //conexionadoPic = loadImage("conexionado.png");
 }
 
@@ -65,8 +65,9 @@ void draw() {
     //clearScreen = false;
   }
 
-   //<>//
+
   // ---------------- GENERATE WAVES WITH PERLIN NOISE
+
   perlinWaves.mapToPickers(pixelPicker.getAllPickers(), pixelPicker.getDrawSurface().width, pixelPicker.getDrawSurface().height);
 
   //image(conexionadoPic,0,0);
@@ -82,7 +83,7 @@ void draw() {
   drawSurface.beginDraw();
   drawSurface.background(0);
   drawSurface.noStroke();
-  for (int i=0; i < pixelPicker.getAllPickers().size(); i++) {
+  for (int i=0; i < pixelPicker.getAllPickers ().size(); i++) {
     float x = pixelPicker.getPicker(i).x * pixelPicker.getDrawSurface().width;
     float y = pixelPicker.getPicker(i).y * pixelPicker.getDrawSurface().height;
 
@@ -100,7 +101,8 @@ void draw() {
     detectedPeople = CVManager.getAllCentroids();
 
     for (int i=0; i< detectedPeople.length; i++) {
-      barriers.get(i).setPosition(detectedPeople[i].x * width,detectedPeople[i].y * height);
+      barriers.get(i).setInputPosition(detectedPeople[i].x * width, detectedPeople[i].y * height);
+
       barriers.get(i).render();
       //println("-|| Barrier => " + i + " | X: " + barriers.get(i).center.x +  " --- Y: " + barriers.get(i).center.y);
     }
@@ -127,9 +129,9 @@ void draw() {
   // ---------------- COMPUTER VISION PEOPLE : DEBUG DRAWING
   /*
   for (int i=0; i< detectedPeople.length; i++) {
-    ellipse(detectedPeople[i].x * width, detectedPeople[i].y * height, 50, 50);
-  }
-  */
+   ellipse(detectedPeople[i].x * width, detectedPeople[i].y * height, 50, 50);
+   }
+   */
 
   fill(255);
   text("FR: " + floor(frameRate), 10, 10);
