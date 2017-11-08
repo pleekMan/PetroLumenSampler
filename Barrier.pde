@@ -27,6 +27,7 @@ class Barrier {
   void render() {
     drawSurface.beginDraw();
     drawSurface.noStroke();
+    
     for (int i=levels - 1; i >= 0; i--) {
       //color c = color(255,0,0, map(i, levels - 1, 0, 50, 255));
       color c = color(0, map(i, levels - 1, 0, 100, 255));
@@ -36,7 +37,11 @@ class Barrier {
       drawSurface.fill(c);
       drawSurface.ellipse(center.x, center.y, ringSize, ringSize);
     }
-
+    
+    
+    drawSurface.fill(255,255,0);
+    drawSurface.ellipse(center.x,center.y,100,100);
+    /*
     // DRAW THE COLORED CORE
     drawSurface.fill(lerpColor(coreColors[0], coreColors[1], (sin(colorOsc) + 1) * 0.5)  );
     float coreX = center.x + random(-25,25);
@@ -48,7 +53,8 @@ class Barrier {
     float alpha = random(1) > 0.7 ? 255 : 0;
     drawSurface.fill(0,alpha);
     drawSurface.ellipse(coreX, coreY, 100, 100);
-
+    */
+    
     drawSurface.endDraw();
 
     colorOsc += colorOscIncrement;

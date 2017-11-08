@@ -22,7 +22,7 @@ class PixelPicker {
     drawSurface = createGraphics(_surfaceWidth, _surfaceHeight, P2D);
 
 
-    setupPickers(1);
+    setupPickers(0);
     resetSender();
   } 
 
@@ -102,18 +102,18 @@ class PixelPicker {
           int g = (c >> 8) & 0xFF;
           int b = c & 0xFF;
           byte[] toSend = {
-            mapToByteAsPercent(r),  mapToByteAsPercent(g),  mapToByteAsPercent(b)
-          };
-          serialPort.write(toSend);
+            mapToByteAsPercent(r), mapToByteAsPercent(g), mapToByteAsPercent(b)
+            };
+            serialPort.write(toSend);
         }
+        serialPort.write(byte(101)); // 101 => CODE FOR "FINISHED SENDING ALL LEDS"
         serialPort.clear();
       }
     }
   }
-  
+
   public byte mapToByteAsPercent(int value) {
-    // BECAUSE JAVA BYTE IS SIGNED (-128 -> 127), ARDUINO WILL GET CONFUSED IF SENT A NEGATIVE BYTE
-    // LET' DO A SYSTEM WHERE I SEND A PERCENTAGE (0 -> 100), AND THEN MAP IT BACK INSIDE ARDUINO TO 0 -> 255
+    // SYSTEM TO ONLY USE VALUES FROM 0 -> 100, AND THEN LEAVE OTHER VALUES AS CONTROL CODES
     return (byte) ((value / (float)255) * 100);
   }
 
@@ -153,9 +153,9 @@ class PixelPicker {
       println("-|| RESETING PICKERS...");
 
       serialPort.clear();
-      delay(1000);
+      delay(2000);
 
-      println("-|| PICKER RESET DONE. GO..!!");
+      println("-|| DONE");
     }
   }
 
