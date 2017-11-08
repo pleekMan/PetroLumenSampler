@@ -1,7 +1,3 @@
-// WHEN RUNNING, THE APP SENDS SOME SERIAL DATA THAT FUCKS UP THE
-// BYTE ORDERING CONSTANTLY SENT THROUGHT THE PIXEL PICKER.
-// TO RE-ORDER IT, PixelPicker.reset() CLEARS THE SERIAL BUFFER AND WAITS 5 SECONDS (APP COMPLETELY PAUSES, WITH NO SENDING)
-
 // ALL Picker's coordinates are normalized. Remember to map them when using them. 
 
 import processing.serial.*;
@@ -9,6 +5,7 @@ import processing.serial.*;
 Serial serialPort;
 PixelPicker pixelPicker;
 PerlinWaves perlinWaves;
+ComputerVisionManager CVManager;
 
 boolean clearScreen;
 boolean placePickersMode;
@@ -20,7 +17,7 @@ String pixelDataFileName = "rockyData.csv";
 
 //ArrayList<RiverWave> waves;
 
-Barrier barrier;
+ArrayList<Barrier> barriers;
 
 void setup() {
   size(500, 500, P2D);
@@ -45,22 +42,20 @@ void setup() {
 
   perlinWaves = new PerlinWaves();
 
+  CVManager = new ComputerVisionManager(this);
+
+  barriers = new ArrayList<Barrier>();
+  for (int i=0; i< CVManager.maxPeopleCount; i++) {
+    // INITIALIZE ALL POSSIBLE BARRIERS, THEN DRAW THEM IF NECESSARY
+    Barrier newBarrier = new Barrier(0,0);
+    newBarrier.bindToDrawSurface(pixelPicker.getDrawSurface());
+    barriers.add(newBarrier);
+  }
+  
   clearScreen = true;
   placePickersMode = false;
   enableConstantSendOut = false;
-
-  /*
-  waves = new ArrayList<RiverWave>();
-   for (int i=0; i < 50; i++) {
-   RiverWave newWave = new RiverWave();
-   //println("-|| Wave Alpha: " + newWave.opacity);
-   waves.add(newWave);
-   }
-   */
-
-  barrier = new Barrier(0, 0);
-  barrier.bindToDrawSurface(pixelPicker.getDrawSurface());
-
+  
   //conexionadoPic = loadImage("conexionado.png");
 }
 
@@ -70,14 +65,8 @@ void draw() {
     //clearScreen = false;
   }
 
-  /*
-  for (RiverWave wave : waves) {
-   wave.update();
-   wave.render();
-   }
-   */
-
-  // GENERATE WAVES WITH PERLIN NOISE
+   //<>//
+  // ---------------- GENERATE WAVES WITH PERLIN NOISE
   perlinWaves.mapToPickers(pixelPicker.getAllPickers(), pixelPicker.getDrawSurface().width, pixelPicker.getDrawSurface().height);
 
   //image(conexionadoPic,0,0);
@@ -93,7 +82,7 @@ void draw() {
   drawSurface.beginDraw();
   drawSurface.background(0);
   drawSurface.noStroke();
-  for (int i=0; i < pixelPicker.getAllPickers ().size(); i++) {
+  for (int i=0; i < pixelPicker.getAllPickers().size(); i++) {
     float x = pixelPicker.getPicker(i).x * pixelPicker.getDrawSurface().width;
     float y = pixelPicker.getPicker(i).y * pixelPicker.getDrawSurface().height;
 
@@ -102,7 +91,20 @@ void draw() {
   }
   drawSurface.endDraw();
 
-  barrier.render();
+  // ---------------- COMPUTER VISION PEOPLE + BARRIER DRAWING
+  noFill();
+  stroke(0, 255, 0);
+  CVManager.update();
+  PVector[] detectedPeople = new PVector[CVManager.getPeopleCount()];
+  if (CVManager.detectsSomething()) { // the previous line might yield an empty array (also using it to have the array initialized)
+    detectedPeople = CVManager.getAllCentroids();
+
+    for (int i=0; i< detectedPeople.length; i++) {
+      barriers.get(i).setPosition(detectedPeople[i].x * width,detectedPeople[i].y * height);
+      barriers.get(i).render();
+      //println("-|| Barrier => " + i + " | X: " + barriers.get(i).center.x +  " --- Y: " + barriers.get(i).center.y);
+    }
+  }
 
 
   pixelPicker.pick();
@@ -122,7 +124,12 @@ void draw() {
     text("-| DRAWING drawSurface", 10, 30);
   }
 
-
+  // ---------------- COMPUTER VISION PEOPLE : DEBUG DRAWING
+  /*
+  for (int i=0; i< detectedPeople.length; i++) {
+    ellipse(detectedPeople[i].x * width, detectedPeople[i].y * height, 50, 50);
+  }
+  */
 
   fill(255);
   text("FR: " + floor(frameRate), 10, 10);
@@ -135,7 +142,7 @@ void mousePressed() {
 }
 
 void mouseDragged() {
-  barrier.setPosition(mouseX, mouseY);
+  //barrier.setPosition(mouseX, mouseY);
 }
 
 

@@ -1,40 +1,54 @@
 import tsps.*;
 
 // CLASS TO INTERACT WITH "TSPS Computer Vision Tool" or "Community Core Vision" or Other..
+// VALUES ARE RECIEVED NORMALIZED
 
 class ComputerVisionManager {
 
   TSPS CVReceiver;
-  TSPSPerson[] people;
+  ArrayList<TSPSPerson> people;
+  int maxPeopleCount;
 
   ComputerVisionManager(PApplet _p5) {
     CVReceiver = new TSPS(_p5, 12000);
-    people = new TSPSPerson[0];
+    people = new ArrayList<TSPSPerson>();
+    maxPeopleCount = 5;
   }
 
   void update() {
-    people = CVReceiver.getPeopleArray();
+    TSPSPerson[] peopleArray = CVReceiver.getPeopleArray();
+
+    people.clear();
+
+    for (int i=0; i<peopleArray.length; i++) {
+      if (i<maxPeopleCount) {
+        people.add(peopleArray[i]);
+      } else {
+        break;
+      }
+    }
   }
 
   PVector getCentroidFrom(int person) {
-    if (detectsSomething()) {
-      if (person < CVReceiver.getNumPeople()) {
-        return people[person].centroid;
-      }
+    if (person < people.size()) {
+      return people.get(person).centroid;
     }
-    println("-|| BLOB " + person + " DOES NO EXIST");
     return new PVector();
   }
-  
-  PVector[] getAllCentroids(){
-   PVector[] centroids = new PVector[CVReceiver.getNumPeople()];    
-    for(int i=0; i < centroids.length; i++){
-      centroids[i] = people[i].centroid;
+
+  PVector[] getAllCentroids() {
+    PVector[] centroids = new PVector[people.size()];    
+    for (int i=0; i < centroids.length; i++) {
+      centroids[i] = people.get(i).centroid;
     }
     return centroids;
   }
 
   boolean detectsSomething() {
     return CVReceiver.getNumPeople() > 0;
+  }
+  
+  int getPeopleCount(){
+    return people.size();
   }
 }

@@ -7,6 +7,8 @@ class Barrier {
   color[] coreColors;
   float colorOsc;
   float colorOscIncrement;
+  
+  boolean active; // not really being used
 
   PGraphics drawSurface;
 
@@ -22,12 +24,15 @@ class Barrier {
 
     colorOsc = random(1);
     colorOscIncrement = 0.05;
+    
+    active = false;
   }
 
   void render() {
     drawSurface.beginDraw();
     drawSurface.noStroke();
-    
+     
+     /*
     for (int i=levels - 1; i >= 0; i--) {
       //color c = color(255,0,0, map(i, levels - 1, 0, 50, 255));
       color c = color(0, map(i, levels - 1, 0, 100, 255));
@@ -37,7 +42,7 @@ class Barrier {
       drawSurface.fill(c);
       drawSurface.ellipse(center.x, center.y, ringSize, ringSize);
     }
-    
+    */
     
     drawSurface.fill(255,255,0);
     drawSurface.ellipse(center.x,center.y,100,100);
@@ -66,5 +71,9 @@ class Barrier {
 
   void bindToDrawSurface(PGraphics surface) {
     drawSurface = surface;
+  }
+  
+  boolean isActive(){
+   return active; 
   }
 }
