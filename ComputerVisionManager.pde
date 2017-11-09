@@ -10,9 +10,12 @@ class ComputerVisionManager {
   int maxPeopleCount;
 
   ComputerVisionManager(PApplet _p5) {
+    println("-|| Starting ComputerVision Manager");
+
     CVReceiver = new TSPS(_p5, 12000);
     people = new ArrayList<TSPSPerson>();
     maxPeopleCount = 5;
+    println("---------------------------");
   }
 
   void update() {
@@ -47,8 +50,8 @@ class ComputerVisionManager {
   boolean detectsSomething() {
     return CVReceiver.getNumPeople() > 0;
   }
-  
-  int getPeopleCount(){
+
+  int getPeopleCount() {
     return people.size();
   }
 }

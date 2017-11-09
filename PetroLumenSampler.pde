@@ -35,6 +35,7 @@ void setup() {
   } 
   catch (Exception e) {
     println("-|| ALGO ANDA MAL CON LA ELECTRONICA..!!!");
+    println("---------------------------");
   }
 
   pixelPicker = new PixelPicker(width, height);
@@ -190,7 +191,6 @@ void keyPressed() {
 }
 
 // ========= ARDUINO CODE  ================== 
-
 /*
 #include <PololuLedStrip.h>
  
@@ -198,17 +198,19 @@ void keyPressed() {
  PololuLedStrip<12> ledStrip;
  
  // Create a buffer for holding the colors (3 bytes per color).
- #define LED_COUNT 4
+ #define LED_COUNT 98
  rgb_color colors[LED_COUNT];
  
  char rgbIn[3];
+ int ledsRead;
  
  void setup()
  {
- // Start up the serial port, for communication with the PC.
  Serial.begin(115200);
  Serial.println(" Ready to receive colors!!");
  //Serial.setTimeout(0);
+ 
+ ledsRead = 0;
  
  testLights();
  }
@@ -216,30 +218,63 @@ void keyPressed() {
  void loop()
  {
  
+ if (Serial.peek() == 101) {
+ //Serial.write(101); // 101 => CODE FOR "FINISHED SENDING ALL LEDS"
+ Serial.read();
+ ledsRead = 0;
+ }
+ 
+ 
+ while (ledsRead < LED_COUNT) {
+ 
  if (Serial.available()) {
  
- for (int i = 0; i < LED_COUNT; i++) {
+ 
+ 
+ //for (int i = 0; i < LED_COUNT; i++) {
+ 
+ 
  Serial.readBytes(rgbIn, 3);
  
- 
- colors[i].red = map(rgbIn[0], 0, 100, 0, 255);
- colors[i].green = map(rgbIn[1], 0, 100, 0, 255);
- colors[i].blue = map(rgbIn[2], 0, 100, 0, 255);
+ //if(rgbIn[0] > 100)break;
  
  
- //      Serial.print(rgbIn[0]);
- //      Serial.print(" - ");
- //      Serial.print(rgbIn[1]);
- //      Serial.print(" - ");
- //      Serial.println(rgbIn[2]);
- //      Serial.println("=============");
+ colors[ledsRead].red = map(rgbIn[0], 0, 100, 0, 255);
+ colors[ledsRead].green = map(rgbIn[1], 0, 100, 0, 255);
+ colors[ledsRead].blue = map(rgbIn[2], 0, 100, 0, 255);
  
  
+ 
+ //        Serial.print(rgbIn[0]);
+ //        Serial.print(" - ");
+ //        Serial.print(rgbIn[1]);
+ //        Serial.print(" - ");
+ //        Serial.println(rgbIn[2]);
+ //        Serial.println("=============");
+ 
+ //Serial.write(rgbIn, 3);
+ 
+ 
+ //}
+ 
+ //Serial.flush();
+ ledsRead++;
  }
+ 
  
  }
  
  ledStrip.write(colors, LED_COUNT);
+ 
+ //ledsRead = 0;
+ 
+ 
+ 
+ //    for (int i = 0; i < LED_COUNT; i++) {
+ //      colors[i].red = 255;
+ //      colors[i].green = 255;
+ //      colors[i].blue = 255;
+ //    }
  
  
  delay(10);
@@ -261,9 +296,9 @@ void keyPressed() {
  
  }
  
- delay(2000);
+ delay(500);
  
- clearLights();
+ //clearLights();
  
  
  }
