@@ -10,7 +10,7 @@ class ComputerVisionManager {
   int maxPeopleCount;
 
   ComputerVisionManager(PApplet _p5) {
-    println("-|| Starting ComputerVision Manager");
+    println("-|| STARTING COMPUTER VISION MANAGER");
 
     CVReceiver = new TSPS(_p5, 12000);
     people = new ArrayList<TSPSPerson>();

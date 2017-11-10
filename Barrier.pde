@@ -1,6 +1,7 @@
 class Barrier {
-  
+
   float radius;
+  float radiusAnim;
   PVector inputPosition;
   float rotation;
   float rotationTarget;
@@ -23,16 +24,17 @@ class Barrier {
     shadowSize = 500;
 
     coreColors = new color[2];
-    coreColors[0] = color(255, 255, 0);
-    coreColors[1] = color(255, 0, 0);
+    coreColors[0] = color(255);
+    coreColors[1] = color(0, 0, 255);
 
-    colorOsc = random(1);
+    colorOsc = 0;
     colorOscIncrement = 0.05;
-    
+
     inputPosition = new PVector();
     rotationTarget = 0;
     rotation = rotationTarget;
     easing = 0.05;
+    radiusAnim = 0;
 
     active = false;
   }
@@ -53,21 +55,29 @@ class Barrier {
      }
      */
 
+    //    radius += radiusAnim;
+    //    radius = constrain(radius, 0, 1);
+
     if (inputPosition.y < height * 0.5) {
       rotationTarget = map(inputPosition.x, 0, width, PI, TWO_PI);
     } else {
       rotationTarget = map(inputPosition.x, 0, width, PI, 0);
     }
-    
+
     float targetDistance = rotationTarget - rotation;
     rotation += targetDistance * easing;
 
     drawSurface.pushMatrix();
     drawSurface.translate(drawSurface.width * 0.5, drawSurface.height * 0.5);
     drawSurface.rotate(rotation);
-    
-    drawSurface.fill(255, 255, 0);
+
+    float colorIntensity =  map(sin(colorOsc),0,1,0.5,1);
+    drawSurface.fill(0, colorIntensity * 255);
+    drawSurface.ellipse(radius, 0, 300, 300);
+
+    drawSurface.fill(colorIntensity * 255);
     drawSurface.ellipse(radius, 0, 100, 100);
+    //drawSurface.ellipse(radius * (width * 0.4), 0, 100, 100);
     drawSurface.popMatrix();
     /*
     // DRAW THE COLORED CORE
@@ -91,8 +101,8 @@ class Barrier {
   void setRotation(float rot) {
     rotationTarget = rot;
   }
-  
-  void setInputPosition(float inX, float inY){
+
+  void setInputPosition(float inX, float inY) {
     inputPosition.set(inX, inY);
   }
   void bindToDrawSurface(PGraphics surface) {
@@ -102,4 +112,14 @@ class Barrier {
   boolean isActive() {
     return active;
   }
+
+  void fadeIn() {
+    radius = 0;
+    radiusAnim = 0.02;
+  }
+
+  void fadeOut() {
+    radiusAnim = -0.02;
+  }
 }
+

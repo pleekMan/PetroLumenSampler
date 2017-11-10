@@ -4,7 +4,8 @@ class PixelPicker {
   PGraphics drawSurface;
   //float surfaceWidth, surfaceHeight;
 
-  int waitFramesToStart = 60; 
+  int waitFramesToStart = 120;
+  boolean enableSendOut;
 
 
   PixelPicker(int _pickerCount, int _surfaceWidth, int _surfaceHeight) {
@@ -33,6 +34,8 @@ class PixelPicker {
       Picker newPicker = new Picker(0, 0);
       pickers.add(newPicker);
     }
+
+    enableSendOut = false;
   }
 
   public void setupPickersFromFile(String _fileName) {
@@ -90,24 +93,27 @@ class PixelPicker {
   }
 
   public void sendOut() {
+  
+    if (enableSendOut) {
 
-    if (serialPort != null) {
+      if (serialPort != null) {
 
-      if (frameCount > waitFramesToStart) {
-        // IF SENDING STARTS STRAIGHT AWAY, THE LEDS (or data sent?) ARE SOMEHOW SHIFTED FORWARD +1
+        if (frameCount > waitFramesToStart) {
+          // IF SENDING STARTS STRAIGHT AWAY, THE LEDS (or data sent?) ARE SOMEHOW SHIFTED FORWARD +1
 
-        for (int i = 0; i < pickers.size (); i++) {
-          color c = pickers.get(i).getColor();
-          int r = (c >> 16) & 0xFF;
-          int g = (c >> 8) & 0xFF;
-          int b = c & 0xFF;
-          byte[] toSend = {
-            mapToByteAsPercent(r), mapToByteAsPercent(g), mapToByteAsPercent(b)
-            };
-            serialPort.write(toSend);
+          for (int i = 0; i < pickers.size (); i++) {
+            color c = pickers.get(i).getColor();
+            int r = (c >> 16) & 0xFF;
+            int g = (c >> 8) & 0xFF;
+            int b = c & 0xFF;
+            byte[] toSend = {
+              mapToByteAsPercent(r), mapToByteAsPercent(g), mapToByteAsPercent(b)
+              };
+              serialPort.write(toSend);
+          }
+          serialPort.write(byte(101)); // 101 => CODE FOR "FINISHED SENDING ALL LEDS"
+          serialPort.clear();
         }
-        serialPort.write(byte(101)); // 101 => CODE FOR "FINISHED SENDING ALL LEDS"
-        serialPort.clear();
       }
     }
   }
@@ -162,4 +168,9 @@ class PixelPicker {
   int getPickerCount() {
     return pickers.size();
   }
+
+  void setEnableSendOut(boolean state) {
+    enableSendOut = state;
+  }
 }
+

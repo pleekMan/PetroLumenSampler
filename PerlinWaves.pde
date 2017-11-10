@@ -9,12 +9,13 @@ class PerlinWaves {
   float noiseRotationIncrement;
 
   boolean drawDebug;
+  float contrastStrength;
 
   PerlinWaves() {
 
     noiseFarLimits = 5.0;
     z = random(10);
-    zIncrement = 0.01;
+    zIncrement = 0.001;
 
     noiseRotation = 0;
     noiseRotationIncrement = -0.01;
@@ -22,6 +23,7 @@ class PerlinWaves {
     center = new PVector(width * 0.5, height * 0.5);
     
     drawDebug = false;
+    contrastStrength = 1.0;
   }
 
 
@@ -31,7 +33,7 @@ class PerlinWaves {
   public void mapToPickers(ArrayList<Picker> pickers, int surfaceWidth, int surfaceHeight) {
 
     //noiseFarLimits = (float)mouseX / width * 20;
-
+    //contrastStrength = (float)mouseX / width;
 
     for (int i=0; i < pickers.size (); i++) {
 
@@ -64,14 +66,14 @@ class PerlinWaves {
       float noiseZ = z;
 
       float pickerValue = noise(noiseX, noiseY, noiseZ);
-      pickerValue = contrastSigmoid(pickerValue, (float)mouseX / width);
+      pickerValue = contrastSigmoid(pickerValue, contrastStrength);
 
       pickers.get(i).setColor(color(0, 0, pickerValue * 255));
     }
 
 
 
-    //z += zIncrement;
+    z += zIncrement;
     noiseRotation += noiseRotationIncrement;
   }
 
