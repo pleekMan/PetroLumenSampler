@@ -16,6 +16,7 @@ boolean enableConstantSendOut;
 boolean enableManualDrawing;
 boolean setContrastMode;
 
+Timer faderTimer;
 float faderIntensity = 1;
 float faderVelocity = -0.02;
 
@@ -70,6 +71,9 @@ void setup() {
   placePickersMode = false;
   enableConstantSendOut = false;
 
+  faderTimer = new Timer();
+  faderTimer.setDurationInSeconds(5); // WAIT 20 (60 * 20) MINUTES TO FADE OUT 
+
   //conexionadoPic = loadImage("conexionado.png");
 }
 
@@ -122,7 +126,11 @@ void draw() {
   CVManager.update();
   PVector[] detectedPeople = new PVector[CVManager.getPeopleCount()];
   if (CVManager.detectsSomething()) { // the previous line might yield an empty array (also using it to have the array initialized)
-    detectedPeople = CVManager.getAllCentroids();
+
+    faderTimer.start();
+    println("-|| Fader: Fade in");
+
+      detectedPeople = CVManager.getAllCentroids();
 
     for (int i=0; i< detectedPeople.length; i++) {
       barriers.get(i).setInputPosition(detectedPeople[i].x * width, detectedPeople[i].y * height);
@@ -173,21 +181,29 @@ void draw() {
 }
 
 void faderProcedures() {
-
+  /*
   if (serialPort != null) {
-    if ( serialPort.available() > 0) { 
-      inMessage = serialPort.read();
-      println(inMessage);
-    }
-  }
-
-  if (inMessage == 201) {
-    faderVelocity = -0.02;
-  } else if (inMessage == 202) {
-    faderVelocity = 0.02;
-  }
+   if ( serialPort.available() > 0) { 
+   inMessage = serialPort.read();
+   println(inMessage);
+   }
+   }
+   
+   if (inMessage == 201) {
+   faderVelocity = -0.02;
+   } else if (inMessage == 202) {
+   faderVelocity = 0.02;
+   }
+   */
 
   // FADER ANIM
+
+  if (faderTimer.isFinished()) {
+    faderVelocity = 0.02;
+    //println("-|| Fader: TIMER-OUT");
+  } else {
+    faderVelocity = -0.02;
+  }
 
   faderIntensity += faderVelocity;
   faderIntensity = constrain(faderIntensity, 0, 1);
@@ -232,7 +248,7 @@ void drawContrastCurve() {
     line(linePointB.x, linePointB.y, linePointA.x, linePointA.y);
   }
 
-  if (perlinWaves.contrastStrength < 0.006) {
+  if (perlinWaves.contrastStrength < 0.004) {
     fill(255);
     rect(origin.x + (boxSize.x * 0.5), origin.y, boxSize.x * 0.5, boxSize.y);
   }
@@ -298,6 +314,11 @@ void keyPressed() {
   if (key == 'l') {
     setContrastMode = !setContrastMode;
     println("-|| SET CONTRAST MODE => " + setContrastMode);
+  }
+
+  if (key == 't') {
+    faderTimer.start();
+    println("-|| Fader: Fade in" + setContrastMode);
   }
 }
 

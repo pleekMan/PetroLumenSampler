@@ -68,7 +68,7 @@ class PerlinWaves {
       float pickerValue = noise(noiseX, noiseY, noiseZ);
       pickerValue = contrastSigmoid(pickerValue, contrastStrength);
 
-      pickers.get(i).setColor(color(0, 0, pickerValue * 255));
+      pickers.get(i).setColor(color(0, 15, pickerValue * 230));
     }
 
 
