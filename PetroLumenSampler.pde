@@ -128,9 +128,10 @@ void draw() {
   if (CVManager.detectsSomething()) { // the previous line might yield an empty array (also using it to have the array initialized)
 
     faderTimer.start();
-    println("-|| Fader: Fade in");
+    perlinWaves.setPaused(true);
+    //println("-|| Fader: Fade in");
 
-      detectedPeople = CVManager.getAllCentroids();
+    detectedPeople = CVManager.getAllCentroids();
 
     for (int i=0; i< detectedPeople.length; i++) {
       barriers.get(i).setInputPosition(detectedPeople[i].x * width, detectedPeople[i].y * height);
@@ -138,6 +139,9 @@ void draw() {
     }
 
     //println("-|| Barrier => " + i + " | X: " + barriers.get(i).center.x +  " --- Y: " + barriers.get(i).center.y);
+  
+} else {
+    perlinWaves.setPaused(false);
   }
 
 
@@ -270,8 +274,11 @@ void keyPressed() {
 
   if (key == ESC) {
     key = 0; // clear key value
-    println ("-|| Stopping Serial Port");
-    serialPort.stop();
+    
+    if (serialPort != null) {
+      println ("-|| Stopping Serial Port");
+      serialPort.stop();
+    }
     println ("-|| Exiting Program");
 
     exit();
@@ -318,6 +325,7 @@ void keyPressed() {
 
   if (key == 't') {
     faderTimer.start();
+    //perlinWaves.setPaused(true);
     println("-|| Fader: Fade in" + setContrastMode);
   }
 }

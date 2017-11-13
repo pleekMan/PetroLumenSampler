@@ -11,6 +11,8 @@ class PerlinWaves {
   boolean drawDebug;
   float contrastStrength;
 
+  boolean pauseMotion;
+
   PerlinWaves() {
 
     noiseFarLimits = 5.0;
@@ -21,9 +23,10 @@ class PerlinWaves {
     noiseRotationIncrement = -0.01;
 
     center = new PVector(width * 0.5, height * 0.5);
-    
+
     drawDebug = false;
-    contrastStrength = 1.0;
+    contrastStrength = 0.09;
+    pauseMotion = false;
   }
 
 
@@ -72,9 +75,10 @@ class PerlinWaves {
     }
 
 
-
-    z += zIncrement;
-    noiseRotation += noiseRotationIncrement;
+    if (!pauseMotion) {
+      z += zIncrement;
+      noiseRotation += noiseRotationIncrement;
+    }
   }
 
   float contrastSigmoid(float t, float strength) {
@@ -88,8 +92,13 @@ class PerlinWaves {
     }
     return y;
   }
-  
-  void drawDebug(boolean state){
-   drawDebug = state; 
+
+  void drawDebug(boolean state) {
+    drawDebug = state;
+  }
+
+  void setPaused(boolean state) {
+    pauseMotion = state;
   }
 }
+
