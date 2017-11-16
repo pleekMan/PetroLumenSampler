@@ -93,7 +93,7 @@ class PixelPicker {
   }
 
   public void sendOut() {
-  
+
     if (enableSendOut) {
 
       if (serialPort != null) {
@@ -101,17 +101,19 @@ class PixelPicker {
         if (frameCount > waitFramesToStart) {
           // IF SENDING STARTS STRAIGHT AWAY, THE LEDS (or data sent?) ARE SOMEHOW SHIFTED FORWARD +1
 
-          for (int i = 0; i < pickers.size (); i++) {
-            color c = pickers.get(i).getColor();
-            int r = (c >> 16) & 0xFF;
-            int g = (c >> 8) & 0xFF;
-            int b = c & 0xFF;
-            byte[] toSend = {
-              mapToByteAsPercent(r), mapToByteAsPercent(g), mapToByteAsPercent(b)
-              };
-              serialPort.write(toSend);
-          }
-          serialPort.write(byte(101)); // 101 => CODE FOR "FINISHED SENDING ALL LEDS"
+          //serialPort.write(byte(101));
+
+            for (int i = 0; i < pickers.size (); i++) {
+              color c = pickers.get(i).getColor();
+              int r = (c >> 16) & 0xFF;
+              int g = (c >> 8) & 0xFF;
+              int b = c & 0xFF;
+              byte[] toSend = {
+                mapToByteAsPercent(r), mapToByteAsPercent(g), mapToByteAsPercent(b)
+                };
+                serialPort.write(toSend);
+            }
+          //serialPort.write(byte(101)); // 101 => CODE FOR "FINISHED SENDING ALL LEDS"
           serialPort.clear();
         }
       }
@@ -120,7 +122,7 @@ class PixelPicker {
 
   public byte mapToByteAsPercent(int value) {
     // SYSTEM TO ONLY USE VALUES FROM 0 -> 100, AND THEN LEAVE OTHER VALUES AS CONTROL CODES
-    return (byte) ((value / (float)255) * 100);
+    return (byte) ((value / (float)255) * 99);
   }
 
   void drawPickers() {
@@ -157,9 +159,9 @@ class PixelPicker {
 
     if (serialPort != null) {
       println("-|| RESETING PICKERS...");
-
       serialPort.clear();
-      delay(2000);
+      serialPort.write(byte(101));
+      delay(500);
 
       println("-|| DONE");
     }

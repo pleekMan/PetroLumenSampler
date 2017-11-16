@@ -7,7 +7,7 @@ PixelPicker pixelPicker;
 PerlinWaves perlinWaves;
 ComputerVisionManager CVManager;
 
-int serialPortNumber = 3;
+int serialPortNumber = 5;
 int inMessage;
 
 boolean clearScreen;
@@ -16,9 +16,12 @@ boolean enableConstantSendOut;
 boolean enableManualDrawing;
 boolean setContrastMode;
 
-Timer faderTimer;
+Timer faderTimer;  // WAIT 20 (60 * 20) MINUTES TO FADE OUT 
+
 float faderIntensity = 1;
 float faderVelocity = -0.02;
+
+Timer resetTimer; // RESET PICKERS (CLEAR SERIAL BUFFER) EVERY 10 MINUTES, IN CASE THEY FREAK-OUT
 
 //int previousPeopleCount;
 
@@ -42,7 +45,7 @@ void setup() {
   try {
     String portName = Serial.list()[serialPortNumber];
     println("--------------------");
-    serialPort = new Serial(this, portName, 115200);
+    serialPort = new Serial(this, portName, 57600);
   } 
   catch (Exception e) {
     println("-|| ALGO ANDA MAL CON LA ELECTRONICA..!!!");
@@ -69,10 +72,13 @@ void setup() {
 
   clearScreen = true;
   placePickersMode = false;
-  enableConstantSendOut = false;
+  enableConstantSendOut = true;
 
   faderTimer = new Timer();
-  faderTimer.setDurationInSeconds(5); // WAIT 20 (60 * 20) MINUTES TO FADE OUT 
+  faderTimer.setDurationInSeconds(60 * 20); // WAIT 20 (60 * 20) MINUTES TO FADE OUT 
+
+  resetTimer = new Timer();
+  resetTimer.setDurationInSeconds(60 * 10);
 
   //conexionadoPic = loadImage("conexionado.png");
 }
@@ -128,7 +134,8 @@ void draw() {
   if (CVManager.detectsSomething()) { // the previous line might yield an empty array (also using it to have the array initialized)
 
     faderTimer.start();
-    perlinWaves.setPaused(true);
+    //perlinWaves.setPaused(true);
+
     //println("-|| Fader: Fade in");
 
     detectedPeople = CVManager.getAllCentroids();
@@ -139,9 +146,8 @@ void draw() {
     }
 
     //println("-|| Barrier => " + i + " | X: " + barriers.get(i).center.x +  " --- Y: " + barriers.get(i).center.y);
-  
-} else {
-    perlinWaves.setPaused(false);
+  } else {
+    //perlinWaves.setPaused(false);
   }
 
 
@@ -182,6 +188,21 @@ void draw() {
     perlinWaves.contrastStrength = (float)mouseX / width;
     drawContrastCurve();
   }
+
+  if (resetTimer.isFinished()) {
+    pixelPicker.resetSender();
+    resetTimer.start();
+  }
+
+  // ARDUINO RESPONSE
+  /*
+  if (serialPort != null) {
+    while (serialPort.available () > 0) {
+      int inByte = serialPort.read();
+      println(inByte);
+    }
+  }
+  */
 }
 
 void faderProcedures() {
@@ -208,6 +229,7 @@ void faderProcedures() {
   } else {
     faderVelocity = -0.02;
   }
+
 
   faderIntensity += faderVelocity;
   faderIntensity = constrain(faderIntensity, 0, 1);
@@ -260,6 +282,7 @@ void drawContrastCurve() {
 
 // EVENTS -----------------
 
+
 void mousePressed() {
   if (placePickersMode) {
     pixelPicker.addPicker(mouseX, mouseY);
@@ -274,7 +297,7 @@ void keyPressed() {
 
   if (key == ESC) {
     key = 0; // clear key value
-    
+
     if (serialPort != null) {
       println ("-|| Stopping Serial Port");
       serialPort.stop();

@@ -28,7 +28,7 @@ class Barrier {
     coreColors[1] = color(0, 0, 255);
 
     colorOsc = 0;
-    colorOscIncrement = 0.05;
+    colorOscIncrement = 0.03;
 
     inputPosition = new PVector();
     rotationTarget = 0;
@@ -58,11 +58,16 @@ class Barrier {
     //    radius += radiusAnim;
     //    radius = constrain(radius, 0, 1);
 
+
+    /*
     if (inputPosition.y < height * 0.5) {
-      rotationTarget = map(inputPosition.x, 0, width, PI, TWO_PI);
-    } else {
-      rotationTarget = map(inputPosition.x, 0, width, PI, 0);
-    }
+     rotationTarget = map(inputPosition.x, 0, width, PI, TWO_PI);
+     } else {
+     rotationTarget = map(inputPosition.x, 0, width, PI, 0);
+     }
+     */
+
+    rotationTarget = map(inputPosition.x, 0, width, PI, TWO_PI);
 
     float targetDistance = rotationTarget - rotation;
     rotation += targetDistance * easing;
@@ -71,7 +76,7 @@ class Barrier {
     drawSurface.translate(drawSurface.width * 0.5, drawSurface.height * 0.5);
     drawSurface.rotate(rotation);
 
-    float colorIntensity =  map(sin(colorOsc),0,1,0.5,1);
+    float colorIntensity =  map(sin(colorOsc), 0, 1, 0.5, 1);
     drawSurface.fill(0, colorIntensity * 255);
     drawSurface.ellipse(radius, 0, 300, 300);
 

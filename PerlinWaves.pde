@@ -25,7 +25,7 @@ class PerlinWaves {
     center = new PVector(width * 0.5, height * 0.5);
 
     drawDebug = false;
-    contrastStrength = 0.09;
+    contrastStrength = 0.025;
     pauseMotion = false;
   }
 
@@ -41,7 +41,7 @@ class PerlinWaves {
     for (int i=0; i < pickers.size (); i++) {
 
       // THE virtualPicker WILL ROTATE AROUND CENTER, OVER THE PERLIN NOISE TEXTURE, AND
-      // AND WILL PASS IT'S COLOR TO THE STATIC picker (the rock)
+      // AND WILL PASS IT'S COLOR TO THE STATIC picker (the rock).
       // THIS SIMULATES A CIRCULAR FLOW
       PVector virtualPicker = new PVector (pickers.get(i).getX() * surfaceWidth, pickers.get(i).getY() * surfaceHeight);
       virtualPicker.sub(center);
@@ -70,8 +70,9 @@ class PerlinWaves {
 
       float pickerValue = noise(noiseX, noiseY, noiseZ);
       pickerValue = contrastSigmoid(pickerValue, contrastStrength);
-
-      pickers.get(i).setColor(color(0, 15, pickerValue * 230));
+      
+      color finalColor = color(0, pickerValue * 150, pickerValue * 230);
+      pickers.get(i).setColor(finalColor);
     }
 
 
