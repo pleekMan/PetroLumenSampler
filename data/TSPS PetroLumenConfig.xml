@@ -8,7 +8,7 @@
     <val_0>0.000000000</val_0>
 </VIDEO_FILE_RELOAD>
 <FLIP_X>
-    <val_0>0.000000000</val_0>
+    <val_0>1.000000000</val_0>
 </FLIP_X>
 <FLIP_Y>
     <val_0>0.000000000</val_0>
@@ -41,7 +41,7 @@
     <val_0>0.100000001</val_0>
 </RELEARN_BACKGROUND>
 <THRESHOLD>
-    <val_0>175.037033081</val_0>
+    <val_0>95.074073792</val_0>
 </THRESHOLD>
 <BLOB_TYPE>
     <val_0>2.000000000</val_0>
@@ -50,10 +50,10 @@
     <val_0>0.000000000</val_0>
 </USE_HIGHPASS>
 <HIGHPASS_BLUR>
-    <val_0>4.277777672</val_0>
+    <val_0>2.777777672</val_0>
 </HIGHPASS_BLUR>
 <HIGHPASS_NOISE>
-    <val_0>2.666666746</val_0>
+    <val_0>5.500000000</val_0>
 </HIGHPASS_NOISE>
 <USE_SMOOTHING>
     <val_0>1.000000000</val_0>
@@ -62,10 +62,10 @@
     <val_0>6.666666508</val_0>
 </SMOOTH_AMOUNT>
 <MIN_BLOB>
-    <val_0>8.526815414</val_0>
+    <val_0>7.415926456</val_0>
 </MIN_BLOB>
 <MAX_BLOB>
-    <val_0>93.709999084</val_0>
+    <val_0>31.549999237</val_0>
 </MAX_BLOB>
 <FIND_HOLES>
     <val_0>1.000000000</val_0>
@@ -154,5 +154,5 @@
 <QUAD3_X>0.000000000</QUAD3_X>
 <QUAD3_Y>1.000000000</QUAD3_Y>
 <HIGHPASS_KERNEL>
-    <val_0>2.666666746</val_0>
+    <val_0>4.111111164</val_0>
 </HIGHPASS_KERNEL>

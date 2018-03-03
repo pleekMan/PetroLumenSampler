@@ -1,11 +1,12 @@
 // ALL Picker's coordinates are normalized. Remember to map them when using them.  //<>//
-
+import ddf.minim.*;
 import processing.serial.*;
 
 Serial serialPort;
 PixelPicker pixelPicker;
 PerlinWaves perlinWaves;
 ComputerVisionManager CVManager;
+SoundManager soundManager;
 
 int serialPortNumber = 5;
 int inMessage;
@@ -20,6 +21,8 @@ Timer faderTimer;  // WAIT 20 (60 * 20) MINUTES TO FADE OUT
 
 float faderIntensity = 1;
 float faderVelocity = -0.02;
+
+int previousPeopleCount = 0;
 
 Timer resetTimer; // RESET PICKERS (CLEAR SERIAL BUFFER) EVERY 10 MINUTES, IN CASE THEY FREAK-OUT
 
@@ -62,6 +65,8 @@ void setup() {
 
   CVManager = new ComputerVisionManager(this);
 
+  soundManager = new SoundManager(this);
+
   barriers = new ArrayList<Barrier>();
   for (int i=0; i< CVManager.maxPeopleCount; i++) {
     // INITIALIZE ALL POSSIBLE BARRIERS, THEN DRAW THEM IF NECESSARY
@@ -78,7 +83,7 @@ void setup() {
   faderTimer.setDurationInSeconds(60 * 20); // WAIT 20 (60 * 20) MINUTES TO FADE OUT 
 
   resetTimer = new Timer();
-  resetTimer.setDurationInSeconds(60 * 10);
+  resetTimer.setDurationInSeconds(60 * 3);
 
   //conexionadoPic = loadImage("conexionado.png");
 }
@@ -145,9 +150,18 @@ void draw() {
       barriers.get(i).render();
     }
 
+
+    if (detectedPeople.length != previousPeopleCount) {
+      if (detectedPeople.length > previousPeopleCount) {
+        soundManager.triggerAvatarSound();
+      }
+      previousPeopleCount = detectedPeople.length;
+    }
+
     //println("-|| Barrier => " + i + " | X: " + barriers.get(i).center.x +  " --- Y: " + barriers.get(i).center.y);
   } else {
     //perlinWaves.setPaused(false);
+    previousPeopleCount = 0;
   }
 
 
@@ -197,12 +211,12 @@ void draw() {
   // ARDUINO RESPONSE
   /*
   if (serialPort != null) {
-    while (serialPort.available () > 0) {
-      int inByte = serialPort.read();
-      println(inByte);
-    }
-  }
-  */
+   while (serialPort.available () > 0) {
+   int inByte = serialPort.read();
+   println(inByte);
+   }
+   }
+   */
 }
 
 void faderProcedures() {
@@ -357,154 +371,152 @@ void keyPressed() {
 
 /*
 #include <PololuLedStrip.h>
-
-// Create an ledStrip object and specify the pin it will use.
-PololuLedStrip<12> ledStrip;
-
-// Create a buffer for holding the colors (3 bytes per color).
-#define LED_COUNT 98
-rgb_color colors[LED_COUNT];
-
-char rgbIn[3];
-int ledsRead;
-
-const byte pirPin = 2;
-
-volatile boolean pirState = false;
-volatile boolean pirStatePrevious = pirState;
-
-void setup()
-{
-  Serial.begin(57600);
-  Serial.println(" Ready to receive colors!!");
-  //Serial.setTimeout(0);
-
-  pinMode(pirPin, INPUT);
-  attachInterrupt(digitalPinToInterrupt(pirPin), updatePirState, CHANGE);
-
-
-  pinMode(13, OUTPUT);
-  digitalWrite(13, LOW);
-
-  ledsRead = 0;
-
-  testLights();
-}
-
-void loop()
-{
-
-  // PIR SENSOR
-  //readPIR();
-
-  //Serial.println("Inside PIR-TRUE");
-
-  
-//    if (Serial.peek() == 101) { // 101 => CODE FOR "FINISHED SENDING ALL LEDS"
-//    //Serial.write(101);
-//    Serial.read();
-//    ledsRead = 0;
-//    }
-  
-
-
-  // while (ledsRead < LED_COUNT) {
-  if (Serial.available()) {
-
-    for (int i = 0; i < LED_COUNT; i++) {
-
-      if (Serial.peek() == 101) { // 101 => CODE FOR "FINISHED SENDING ALL LEDS"
-        Serial.write(101);
-        Serial.read();
-        break;
-      }
-
-      Serial.readBytes(rgbIn, 3);
-
-      //if(rgbIn[0] > 100)break;
-
-
-      colors[i].red = map(rgbIn[0], 0, 100, 0, 255);
-      colors[i].green = map(rgbIn[1], 0, 100, 0, 255);
-      colors[i].blue = map(rgbIn[2], 0, 100, 0, 255);
-
-
-
-    }
-
-    //Serial.flush();
-    //ledsRead++;
-    ledStrip.write(colors, LED_COUNT);
-
-  }
-
-
-  //}
-
-
-  //readPIR();
-
-
-
-  delay(10);
-}
-
-void updatePirState() {
-
-  //Serial.print("Reading PIR: ");
-
-  pirState = digitalRead(pirPin);
-  digitalWrite(13, pirState);
-
-  if ( pirState != pirStatePrevious) {
-    //printPirState();
-
-    //Serial.println(pirState);
-    //Serial.println("------------------");
-
-    if (pirState == true) {
-      Serial.write(201); // SEND "PRESENCE" TO P5
-    } else {
-      Serial.write(202); // SEND "ABSCENSE" TO P5
-
-    }
-    pirStatePrevious = pirState;
-  }
-}
-
-void testLights() {
-
-  clearLights();
-
-  for (int i = 0; i < LED_COUNT; i++) {
-
-    colors[i].red = 255;
-    colors[i].green = 255;
-    colors[i].blue = 255;
-
-    ledStrip.write(colors, LED_COUNT);
-
-    delay(50);
-
-  }
-
-  delay(500);
-
-  clearLights();
-
-
-}
-
-void clearLights() {
-  for (int i = 0; i < LED_COUNT; i++) {
-
-    colors[i].red = 0;
-    colors[i].green = 0;
-    colors[i].blue = 0;
-
-  }
-  ledStrip.write(colors, LED_COUNT);
-}
-*/
-
-
+ 
+ // Create an ledStrip object and specify the pin it will use.
+ PololuLedStrip<12> ledStrip;
+ 
+ // Create a buffer for holding the colors (3 bytes per color).
+ #define LED_COUNT 98
+ rgb_color colors[LED_COUNT];
+ 
+ char rgbIn[3];
+ int ledsRead;
+ 
+ const byte pirPin = 2;
+ 
+ volatile boolean pirState = false;
+ volatile boolean pirStatePrevious = pirState;
+ 
+ void setup()
+ {
+ Serial.begin(57600);
+ Serial.println(" Ready to receive colors!!");
+ //Serial.setTimeout(0);
+ 
+ pinMode(pirPin, INPUT);
+ attachInterrupt(digitalPinToInterrupt(pirPin), updatePirState, CHANGE);
+ 
+ 
+ pinMode(13, OUTPUT);
+ digitalWrite(13, LOW);
+ 
+ ledsRead = 0;
+ 
+ testLights();
+ }
+ 
+ void loop()
+ {
+ 
+ // PIR SENSOR
+ //readPIR();
+ 
+ //Serial.println("Inside PIR-TRUE");
+ 
+ 
+ //    if (Serial.peek() == 101) { // 101 => CODE FOR "FINISHED SENDING ALL LEDS"
+ //    //Serial.write(101);
+ //    Serial.read();
+ //    ledsRead = 0;
+ //    }
+ 
+ 
+ 
+ // while (ledsRead < LED_COUNT) {
+ if (Serial.available()) {
+ 
+ for (int i = 0; i < LED_COUNT; i++) {
+ 
+ if (Serial.peek() == 101) { // 101 => CODE FOR "FINISHED SENDING ALL LEDS"
+ Serial.write(101);
+ Serial.read();
+ break;
+ }
+ 
+ Serial.readBytes(rgbIn, 3);
+ 
+ //if(rgbIn[0] > 100)break;
+ 
+ 
+ colors[i].red = map(rgbIn[0], 0, 100, 0, 255);
+ colors[i].green = map(rgbIn[1], 0, 100, 0, 255);
+ colors[i].blue = map(rgbIn[2], 0, 100, 0, 255);
+ 
+ 
+ 
+ }
+ 
+ //Serial.flush();
+ //ledsRead++;
+ ledStrip.write(colors, LED_COUNT);
+ 
+ }
+ 
+ 
+ //}
+ 
+ 
+ //readPIR();
+ 
+ 
+ 
+ delay(10);
+ }
+ 
+ void updatePirState() {
+ 
+ //Serial.print("Reading PIR: ");
+ 
+ pirState = digitalRead(pirPin);
+ digitalWrite(13, pirState);
+ 
+ if ( pirState != pirStatePrevious) {
+ //printPirState();
+ 
+ //Serial.println(pirState);
+ //Serial.println("------------------");
+ 
+ if (pirState == true) {
+ Serial.write(201); // SEND "PRESENCE" TO P5
+ } else {
+ Serial.write(202); // SEND "ABSCENSE" TO P5
+ 
+ }
+ pirStatePrevious = pirState;
+ }
+ }
+ 
+ void testLights() {
+ 
+ clearLights();
+ 
+ for (int i = 0; i < LED_COUNT; i++) {
+ 
+ colors[i].red = 255;
+ colors[i].green = 255;
+ colors[i].blue = 255;
+ 
+ ledStrip.write(colors, LED_COUNT);
+ 
+ delay(50);
+ 
+ }
+ 
+ delay(500);
+ 
+ clearLights();
+ 
+ 
+ }
+ 
+ void clearLights() {
+ for (int i = 0; i < LED_COUNT; i++) {
+ 
+ colors[i].red = 0;
+ colors[i].green = 0;
+ colors[i].blue = 0;
+ 
+ }
+ ledStrip.write(colors, LED_COUNT);
+ }
+ */

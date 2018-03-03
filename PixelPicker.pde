@@ -161,7 +161,7 @@ class PixelPicker {
       println("-|| RESETING PICKERS...");
       serialPort.clear();
       serialPort.write(byte(101));
-      delay(500);
+      delay(150);
 
       println("-|| DONE");
     }
